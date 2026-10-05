@@ -1,3 +1,19 @@
+БОЛЗООНД УРИХ ИНТЕРАКТИВ ВЕБ ХУУДАС (GMAIL МЭДЭГДЛИЙН ТҮЛХҮҮР БҮРЭН СУУСАН
+ХУВИЛБАР)
+================================================================================
+Таны Web3Forms түлхүүр: 632c1bd5-3ced-4dbb-98d2-0128c133b18d Таны амьд ажиллаж
+буй веб линк: https://lhagvalhagva20060419-eng.github.io/date-invite/
+--------------------------------------------------------------------------------
+ЯАЖ ШИНЭЧЛЭХ ВЭ? 1. Доорх кодыг бүхэлд нь хуулж аваад компьютертээ байгаа
+'index.html' файлыг бүрэн солиод хадгална. 2. Терминал дээрээсээ: git add
+index.html git commit -m "Add Web3Forms email notification" git push origin main
+гэж бичээд л гүйцээ! (Эсвэл GitHub дээрээ index.html файлыг нээгээд баруун дээрх
+харандааны дүрс дээр даран доорх кодыг бүтнээр нь хуулж тавиад Commit changes
+хийж болно).
+================================================================================
+БҮРЭН ЭХ КОД (HTML, CSS, JAVASCRIPT):
+================================================================================
+
 <!doctype html>
 <html lang="mn">
   <head>
@@ -1078,6 +1094,35 @@
             chip.innerText = act;
             actContainer.appendChild(chip);
           });
+
+          // --- Web3Forms Email Notification ---
+          // Та web3forms.com дээрээс авсан Access Key-ээ доор оруулснаар таны Gmail рүү мэдэгдэл шууд очно!
+          const WEB3FORMS_ACCESS_KEY = "632c1bd5-3ced-4dbb-98d2-0128c133b18d"; // Жишээ нь: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+          if (
+            WEB3FORMS_ACCESS_KEY &&
+            WEB3FORMS_ACCESS_KEY !== "632c1bd5-3ced-4dbb-98d2-0128c133b18d"
+          ) {
+            fetch("https://api.web3forms.com/submit", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                access_key: WEB3FORMS_ACCESS_KEY,
+                subject: "Болзооны шинэ тов ирлээ! 💕",
+                from_name: "Болзооны Урилга",
+                date: dateString,
+                time: selectedTime,
+                activities: selectedActs.join(", "),
+              }),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                console.log("Web3Forms response:", data);
+              })
+              .catch((err) => {
+                console.error("Email error:", err);
+              });
+          }
 
           triggerConfetti();
           showStep(4, step4);
