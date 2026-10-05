@@ -1,19 +1,3 @@
-БОЛЗООНД УРИХ ИНТЕРАКТИВ ВЕБ ХУУДАС (GMAIL МЭДЭГДЛИЙН ТҮЛХҮҮР БҮРЭН СУУСАН
-ХУВИЛБАР)
-================================================================================
-Таны Web3Forms түлхүүр: 632c1bd5-3ced-4dbb-98d2-0128c133b18d Таны амьд ажиллаж
-буй веб линк: https://lhagvalhagva20060419-eng.github.io/date-invite/
---------------------------------------------------------------------------------
-ЯАЖ ШИНЭЧЛЭХ ВЭ? 1. Доорх кодыг бүхэлд нь хуулж аваад компьютертээ байгаа
-'index.html' файлыг бүрэн солиод хадгална. 2. Терминал дээрээсээ: git add
-index.html git commit -m "Add Web3Forms email notification" git push origin main
-гэж бичээд л гүйцээ! (Эсвэл GitHub дээрээ index.html файлыг нээгээд баруун дээрх
-харандааны дүрс дээр даран доорх кодыг бүтнээр нь хуулж тавиад Commit changes
-хийж болно).
-================================================================================
-БҮРЭН ЭХ КОД (HTML, CSS, JAVASCRIPT):
-================================================================================
-
 <!doctype html>
 <html lang="mn">
   <head>
@@ -1099,10 +1083,7 @@ index.html git commit -m "Add Web3Forms email notification" git push origin main
           // Та web3forms.com дээрээс авсан Access Key-ээ доор оруулснаар таны Gmail рүү мэдэгдэл шууд очно!
           const WEB3FORMS_ACCESS_KEY = "632c1bd5-3ced-4dbb-98d2-0128c133b18d"; // Жишээ нь: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
-          if (
-            WEB3FORMS_ACCESS_KEY &&
-            WEB3FORMS_ACCESS_KEY !== "632c1bd5-3ced-4dbb-98d2-0128c133b18d"
-          ) {
+          if (WEB3FORMS_ACCESS_KEY) {
             fetch("https://api.web3forms.com/submit", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
