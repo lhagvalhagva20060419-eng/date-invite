@@ -681,21 +681,26 @@
             <div class="cal-days-grid" id="calDaysGrid"></div>
           </div>
 
-          <!-- Time options -->
-          <label class="form-label">⏰ Болзооны цаг:</label>
-          <div class="time-slot-container" id="timeSlots">
-            <div class="time-chip" data-time="12:00 Өдрийн хоол">
-              12:00 Өдөр ☀️
-            </div>
-            <div class="time-chip active" data-time="15:00 Үдээс хойш">
-              15:00 Үдээс хойш ☕
-            </div>
-            <div class="time-chip" data-time="18:30 Оройн хоол">
-              18:30 Орой 🍽️
-            </div>
-            <div class="time-chip" data-time="20:00 Орой / Шөнө">
-              20:00 Орой 🌙
-            </div>
+          <!-- Time options based on class schedule -->
+          <label class="form-label">⏰ Болзооны цаг сонгох:</label>
+          <p
+            id="scheduleNotice"
+            style="
+              font-size: 13px;
+              color: var(--accent-color);
+              font-weight: 600;
+              margin-bottom: 8px;
+              line-height: 1.4;
+            "
+          ></p>
+          <div class="time-slot-container" id="timeSlots"></div>
+          <div style="margin-top: 10px">
+            <input
+              type="text"
+              id="customTimeInput"
+              class="custom-activity-input"
+              placeholder="Өөр цаг бичих бол энд оруулна уу (жишээ нь: 19:15)... ⏱️"
+            />
           </div>
         </div>
 
@@ -956,6 +961,7 @@
 
       function initCalendar() {
         renderCalendar();
+        renderTimeSlots();
       }
 
       function renderCalendar() {
@@ -1008,6 +1014,7 @@
             dayCell.addEventListener("click", () => {
               selectedDate = new Date(year, month, d);
               renderCalendar();
+              renderTimeSlots();
             });
           }
 
@@ -1025,15 +1032,142 @@
         renderCalendar();
       });
 
-      // --- Time Slot Selection ---
-      let selectedTime = "15:00 Үдээс хойш";
-      const timeChips = document.querySelectorAll(".time-chip");
-      timeChips.forEach((chip) => {
-        chip.addEventListener("click", () => {
-          timeChips.forEach((c) => c.classList.remove("active"));
-          chip.classList.add("active");
-          selectedTime = chip.dataset.time;
+      // --- Dynamic Time Slots based on University Class Schedule ---
+      let selectedTime = "";
+
+      const weeklyScheduleRules = {
+        1: {
+          // Даваа (Хичээл 18:25-д тарна)
+          notice:
+            "💡 Даваа гарагт хичээл 18:25-д дуусах тул 18:25-аас хойш чөлөөтэй цагууд:",
+          slots: [
+            "18:45 Оройн хоол 🍽️",
+            "19:30 Оройн уулзалт ☕",
+            "20:30 Шөнийн салхилалт 🌙",
+            "21:15 Кино / Амттан 🎬",
+          ],
+        },
+        2: {
+          // Мягмар (16:00 – 17:30 семинартай, бусад цагт чөлөөтэй)
+          notice:
+            "💡 Мягмар гарагт 16:00–17:30 хичээлтэй, бусад бүх цагт чөлөөтэй:",
+          slots: [
+            "11:30 Өдрийн уулзалт ☀️",
+            "13:00 Өдрийн хоол 🍕",
+            "14:30 Кофе ууж ярилцах ☕",
+            "18:00 Оройн хоол 🍽️",
+            "19:30 Үдшийн болзоо ✨",
+            "20:45 Кино үзэх 🌙",
+          ],
+        },
+        3: {
+          // Лхагва (Хичээл 15:50-д тарна)
+          notice:
+            "💡 Лхагва гарагт хичээл 15:50-д дуусах тул 16:00-аас хойш чөлөөтэй цагууд:",
+          slots: [
+            "16:15 Үдээс хойш кофе ☕",
+            "18:00 Оройн хоол 🍽️",
+            "19:30 Тоглоомын төв / Парк 🎡",
+            "20:30 Үдшийн уулзалт 🌙",
+          ],
+        },
+        4: {
+          // Пүрэв (Хичээл 10:50-д тарна)
+          notice:
+            "💡 Пүрэв гарагт хичээл 10:50-д дуусах тул 11:00-ээс хойш чөлөөтэй цагууд:",
+          slots: [
+            "11:30 Өдрийн болзоо ☀️",
+            "13:00 Өдрийн хоол 🍕",
+            "15:30 Кофе уух ☕",
+            "18:30 Оройн хоол 🍽️",
+            "20:00 Үдшийн кино 🌙",
+          ],
+        },
+        5: {
+          // Баасан (Хичээл 17:30-д тарна)
+          notice:
+            "💡 Баасан гарагт хичээл 17:30-д дуусах тул 17:30-аас хойш чөлөөтэй цагууд:",
+          slots: [
+            "18:00 Оройн хоол 🍽️",
+            "19:00 Кино үзэх 🎬",
+            "20:30 Баасан гарагийн болзоо ✨",
+            "21:30 Караоке / Паб 🎤",
+          ],
+        },
+        6: {
+          // Бямба
+          notice: "💡 Бямба гарагт амрах тул бүтэн өдөр чөлөөтэй:",
+          slots: [
+            "12:00 Өдрийн болзоо ☀️",
+            "14:30 Үдээс хойш кофе ☕",
+            "16:30 Парк / Үзэсгэлэн 🎡",
+            "18:30 Оройн хоол 🍕",
+            "20:30 Романтик болзоо 🌙",
+          ],
+        },
+        0: {
+          // Ням
+          notice: "💡 Ням гарагт амрах тул бүтэн өдөр чөлөөтэй:",
+          slots: [
+            "12:00 Өдрийн болзоо ☀️",
+            "14:30 Үдээс хойш кофе ☕",
+            "16:30 Парк / Үзэсгэлэн 🎡",
+            "18:30 Оройн хоол 🍕",
+            "20:30 Романтик болзоо 🌙",
+          ],
+        },
+      };
+
+      function renderTimeSlots() {
+        const day = selectedDate.getDay();
+        const schedule = weeklyScheduleRules[day];
+        const noticeElem = document.getElementById("scheduleNotice");
+        const container = document.getElementById("timeSlots");
+        const customTimeInput = document.getElementById("customTimeInput");
+
+        noticeElem.innerText = schedule.notice;
+        container.innerHTML = "";
+
+        // Default to first slot if custom input is empty
+        if (!customTimeInput.value.trim()) {
+          selectedTime = schedule.slots[0];
+        }
+
+        schedule.slots.forEach((slotText, index) => {
+          const chip = document.createElement("div");
+          chip.className =
+            "time-chip" + (selectedTime === slotText ? " active" : "");
+          chip.dataset.time = slotText;
+          chip.innerText = slotText;
+
+          chip.addEventListener("click", () => {
+            document
+              .querySelectorAll(".time-chip")
+              .forEach((c) => c.classList.remove("active"));
+            chip.classList.add("active");
+            selectedTime = slotText;
+            customTimeInput.value = "";
+          });
+
+          container.appendChild(chip);
         });
+      }
+
+      const customTimeInput = document.getElementById("customTimeInput");
+      customTimeInput.addEventListener("input", (e) => {
+        const val = e.target.value.trim();
+        if (val) {
+          document
+            .querySelectorAll(".time-chip")
+            .forEach((c) => c.classList.remove("active"));
+          selectedTime = val + " ⏰";
+        } else {
+          const firstChip = document.querySelector(".time-chip");
+          if (firstChip) {
+            firstChip.classList.add("active");
+            selectedTime = firstChip.dataset.time;
+          }
+        }
       });
 
       // --- Activities Selection ---
